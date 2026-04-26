@@ -54,7 +54,8 @@ public class LayoutAdapter implements LayoutPort {
         return new LayoutEntity(
                 layout.getId(),
                 layout.getExternalKey(),
-                layout.getName()
+                layout.getName(),
+                layout.getStatus()
         );
     }
 
@@ -62,7 +63,8 @@ public class LayoutAdapter implements LayoutPort {
         return new Layout(
                 layoutEntity.getId(),
                 layoutEntity.getExternalKey(),
-                layoutEntity.getName()
+                layoutEntity.getName(),
+                layoutEntity.getStatus()
         );
     }
 

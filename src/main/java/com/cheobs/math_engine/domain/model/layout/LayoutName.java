@@ -8,7 +8,7 @@ public record LayoutName(String value) {
             throw new LayoutValidationExcepiton("Layout name cannot be null", "validation.layout.name.null");
         }
 
-        value = value.trim().toUpperCase();
+        value = value.trim();
 
         if (value.isBlank()) {
             throw new LayoutValidationExcepiton("Layout name cannot be blank", "validation.layout.name.blank");

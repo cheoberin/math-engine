@@ -18,4 +18,7 @@ public interface LayoutUseCase {
 
     List<Layout> findLayouts(String searchKey);
 
+    void activateLayout(UUID id);
+
+    void deactivateLayout(UUID id);
 }
