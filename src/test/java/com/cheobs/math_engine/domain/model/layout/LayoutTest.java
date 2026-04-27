@@ -1,5 +1,6 @@
 package com.cheobs.math_engine.domain.model.layout;
 
+import com.cheobs.math_engine.domain.model.common.ConflictException;
 import org.junit.jupiter.api.Test;
 
 import java.util.UUID;
@@ -53,7 +54,7 @@ class LayoutTest {
     void shouldThrowWhenActivatingAlreadyActiveLayout() {
         Layout layout = new Layout(UUID.randomUUID(), "A1", "Original", LayoutStatus.ACTIVE);
 
-        LayoutConflictException exception = assertThrows(LayoutConflictException.class, layout::activate);
+        ConflictException exception = assertThrows(ConflictException.class, layout::activate);
 
         assertEquals("conflict.layout.status.active", exception.getIdentifier());
     }
@@ -71,7 +72,7 @@ class LayoutTest {
     void shouldThrowWhenDeactivatingAlreadyInactiveLayout() {
         Layout layout = new Layout(UUID.randomUUID(), "A1", "Original", LayoutStatus.INACTIVE);
 
-        LayoutConflictException exception = assertThrows(LayoutConflictException.class, layout::deactivate);
+        ConflictException exception = assertThrows(ConflictException.class, layout::deactivate);
 
         assertEquals("conflict.layout.status.inactive", exception.getIdentifier());
     }

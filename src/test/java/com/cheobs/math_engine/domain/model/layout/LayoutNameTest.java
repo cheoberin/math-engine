@@ -1,5 +1,6 @@
 package com.cheobs.math_engine.domain.model.layout;
 
+import com.cheobs.math_engine.domain.model.common.ValidationException;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -16,8 +17,8 @@ class LayoutNameTest {
 
     @Test
     void shouldThrowWhenNameIsNull() {
-        LayoutValidationExcepiton exception = assertThrows(
-                LayoutValidationExcepiton.class,
+        ValidationException exception = assertThrows(
+                ValidationException.class,
                 () -> new LayoutName(null)
         );
 
@@ -26,8 +27,8 @@ class LayoutNameTest {
 
     @Test
     void shouldThrowWhenNameIsBlank() {
-        LayoutValidationExcepiton exception = assertThrows(
-                LayoutValidationExcepiton.class,
+        ValidationException exception = assertThrows(
+                ValidationException.class,
                 () -> new LayoutName("   ")
         );
 
@@ -47,8 +48,8 @@ class LayoutNameTest {
     void shouldThrowWhenNameHasMoreThan255Characters() {
         String name = "A".repeat(256);
 
-        LayoutValidationExcepiton exception = assertThrows(
-                LayoutValidationExcepiton.class,
+        ValidationException exception = assertThrows(
+                ValidationException.class,
                 () -> new LayoutName(name)
         );
 

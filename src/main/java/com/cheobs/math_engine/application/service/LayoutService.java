@@ -1,9 +1,9 @@
 package com.cheobs.math_engine.application.service;
 
+import com.cheobs.math_engine.domain.model.common.ConflictException;
+import com.cheobs.math_engine.domain.model.common.NotFoundException;
 import com.cheobs.math_engine.domain.model.layout.Layout;
 import com.cheobs.math_engine.domain.model.layout.LayoutCommand;
-import com.cheobs.math_engine.domain.model.layout.LayoutConflictException;
-import com.cheobs.math_engine.domain.model.layout.LayoutNotFoundException;
 import com.cheobs.math_engine.domain.port.input.LayoutUseCase;
 import com.cheobs.math_engine.domain.port.output.LayoutPort;
 import org.springframework.stereotype.Service;
@@ -14,6 +14,10 @@ import java.util.UUID;
 
 @Service
 public class LayoutService implements LayoutUseCase {
+
+    private static final String LAYOUT_NOT_FOUND_IDENTIFIER = "not-found.layout";
+    private static final String LAYOUT_NOT_FOUND_BY_ID_MESSAGE = "Layout not found with id: ";
+    private static final String LAYOUT_NOT_FOUND_BY_EXTERNAL_KEY_MESSAGE = "Layout not found with external key: ";
 
     private final LayoutPort layoutPort;
 
@@ -26,7 +30,7 @@ public class LayoutService implements LayoutUseCase {
     public Layout createLayout(LayoutCommand command) {
 
         layoutPort.getByExternalKey(command.externalKey()).ifPresent(existing -> {
-            throw new LayoutConflictException("Layout with external key already exists: " + command.externalKey(), "conflict.layout.external-key.in-use");
+            throw new ConflictException("Layout with external key already exists: " + command.externalKey(), "conflict.layout.external-key.in-use");
         });
 
         Layout layout = new Layout(command);
@@ -38,11 +42,11 @@ public class LayoutService implements LayoutUseCase {
     @Transactional
     public Layout updateLayout(UUID layoutId, LayoutCommand command) {
         var optionalLayout = layoutPort.getById(layoutId);
-        var layout = optionalLayout.orElseThrow(() -> new LayoutNotFoundException("Layout not found with id: " + layoutId, "not-found.layout"));
+        var layout = optionalLayout.orElseThrow(() -> new NotFoundException(LAYOUT_NOT_FOUND_BY_ID_MESSAGE + layoutId, LAYOUT_NOT_FOUND_IDENTIFIER));
 
         layoutPort.getByExternalKey(command.externalKey()).ifPresent(existing -> {
             if (!existing.getId().equals(layoutId)) {
-                throw new LayoutConflictException("Layout with external key already exists: " + command.externalKey(), "conflict.layout.external-key.in-use");
+                throw new ConflictException("Layout with external key already exists: " + command.externalKey(), "conflict.layout.external-key.in-use");
             }
         });
 
@@ -55,14 +59,14 @@ public class LayoutService implements LayoutUseCase {
     @Transactional(readOnly = true)
     public Layout findLayout(UUID layoutId) {
         var optionalLayout = layoutPort.getById(layoutId);
-        return optionalLayout.orElseThrow(() -> new LayoutNotFoundException("Layout not found with id: " + layoutId, "not-found.layout"));
+        return optionalLayout.orElseThrow(() -> new NotFoundException(LAYOUT_NOT_FOUND_BY_ID_MESSAGE + layoutId, LAYOUT_NOT_FOUND_IDENTIFIER));
     }
 
     @Override
     @Transactional(readOnly = true)
     public Layout findLayoutByExternalKey(String externalKey) {
         var optionalLayout = layoutPort.getByExternalKey(externalKey);
-        return optionalLayout.orElseThrow(() -> new LayoutNotFoundException("Layout not found with external key: " + externalKey, "not-found.layout"));
+        return optionalLayout.orElseThrow(() -> new NotFoundException(LAYOUT_NOT_FOUND_BY_EXTERNAL_KEY_MESSAGE + externalKey, LAYOUT_NOT_FOUND_IDENTIFIER));
     }
 
     @Override
@@ -76,7 +80,7 @@ public class LayoutService implements LayoutUseCase {
     @Transactional
     public void activateLayout(UUID layoutId) {
         var optionalLayout = layoutPort.getById(layoutId);
-        var layout = optionalLayout.orElseThrow(() -> new LayoutNotFoundException("Layout not found with id: " + layoutId, "not-found.layout"));
+        var layout = optionalLayout.orElseThrow(() -> new NotFoundException(LAYOUT_NOT_FOUND_BY_ID_MESSAGE + layoutId, LAYOUT_NOT_FOUND_IDENTIFIER));
         layout.activate();
         layoutPort.save(layout);
     }
@@ -85,7 +89,7 @@ public class LayoutService implements LayoutUseCase {
     @Transactional
     public void deactivateLayout(UUID layoutId) {
         var optionalLayout = layoutPort.getById(layoutId);
-        var layout = optionalLayout.orElseThrow(() -> new LayoutNotFoundException("Layout not found with id: " + layoutId, "not-found.layout"));
+        var layout = optionalLayout.orElseThrow(() -> new NotFoundException(LAYOUT_NOT_FOUND_BY_ID_MESSAGE + layoutId, LAYOUT_NOT_FOUND_IDENTIFIER));
         layout.deactivate();
         layoutPort.save(layout);
     }

@@ -24,7 +24,7 @@ public class LayoutController implements LayoutApi {
 
     @Override
     public ResponseEntity<LayoutDetailsResponseDto> createLayout(LayoutRequestDto layoutRequestDto) {
-        LayoutCommand command = new LayoutCommand(layoutRequestDto.externalKey(), layoutRequestDto.name());
+        LayoutCommand command = layoutRequestDto.toDomain();
         var domain = layoutUseCase.createLayout(command);
         var response = new LayoutDetailsResponseDto(domain);
         URI location = URI.create("/api/layouts/" + domain.getId());
@@ -33,7 +33,7 @@ public class LayoutController implements LayoutApi {
 
     @Override
     public ResponseEntity<LayoutDetailsResponseDto> updateLayout(UUID id, LayoutRequestDto layoutRequestDto) {
-        LayoutCommand command = new LayoutCommand(layoutRequestDto.externalKey(), layoutRequestDto.name());
+        LayoutCommand command = layoutRequestDto.toDomain();
         var domain = layoutUseCase.updateLayout(id, command);
         var response = new LayoutDetailsResponseDto(domain);
         return ResponseEntity.ok(response);

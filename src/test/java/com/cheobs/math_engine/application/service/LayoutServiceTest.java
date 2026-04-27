@@ -1,15 +1,12 @@
 package com.cheobs.math_engine.application.service;
 
+import com.cheobs.math_engine.domain.model.common.ConflictException;
+import com.cheobs.math_engine.domain.model.common.NotFoundException;
 import com.cheobs.math_engine.domain.model.layout.Layout;
 import com.cheobs.math_engine.domain.model.layout.LayoutCommand;
-import com.cheobs.math_engine.domain.model.layout.LayoutConflictException;
-import com.cheobs.math_engine.domain.model.layout.LayoutNotFoundException;
 import com.cheobs.math_engine.domain.model.layout.LayoutStatus;
 import com.cheobs.math_engine.domain.port.output.LayoutPort;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.NullSource;
-import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -25,6 +22,7 @@ import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -63,8 +61,8 @@ class LayoutServiceTest {
 
         when(layoutPort.getByExternalKey("A1")).thenReturn(Optional.of(existing));
 
-        LayoutConflictException exception = assertThrows(
-                LayoutConflictException.class,
+        ConflictException exception = assertThrows(
+                ConflictException.class,
                 () -> layoutService.createLayout(command)
         );
 
@@ -79,8 +77,8 @@ class LayoutServiceTest {
 
         when(layoutPort.getById(layoutId)).thenReturn(Optional.empty());
 
-        LayoutNotFoundException exception = assertThrows(
-                LayoutNotFoundException.class,
+        NotFoundException exception = assertThrows(
+                NotFoundException.class,
                 () -> layoutService.updateLayout(layoutId, command)
         );
 
@@ -99,8 +97,8 @@ class LayoutServiceTest {
         when(layoutPort.getById(layoutId)).thenReturn(Optional.of(current));
         when(layoutPort.getByExternalKey("B1")).thenReturn(Optional.of(other));
 
-        LayoutConflictException exception = assertThrows(
-                LayoutConflictException.class,
+        ConflictException exception = assertThrows(
+                ConflictException.class,
                 () -> layoutService.updateLayout(layoutId, command)
         );
 
@@ -146,8 +144,8 @@ class LayoutServiceTest {
 
         when(layoutPort.getById(layoutId)).thenReturn(Optional.empty());
 
-        LayoutNotFoundException exception = assertThrows(
-                LayoutNotFoundException.class,
+        NotFoundException exception = assertThrows(
+                NotFoundException.class,
                 () -> layoutService.findLayout(layoutId)
         );
 
@@ -169,26 +167,26 @@ class LayoutServiceTest {
     void shouldThrowNotFoundWhenFindingLayoutByExternalKey() {
         when(layoutPort.getByExternalKey("A1")).thenReturn(Optional.empty());
 
-        LayoutNotFoundException exception = assertThrows(
-                LayoutNotFoundException.class,
+        NotFoundException exception = assertThrows(
+                NotFoundException.class,
                 () -> layoutService.findLayoutByExternalKey("A1")
         );
 
         assertEquals("not-found.layout", exception.getIdentifier());
     }
 
-    @ParameterizedTest
-    @NullSource
-    @ValueSource(strings = {"", " ", "   "})
-    void shouldSearchUsingNullWhenSearchKeyIsBlank(String searchKey) {
+    @Test
+    void shouldSearchUsingNullWhenSearchKeyIsBlank() {
         List<Layout> layouts = List.of(new Layout(UUID.randomUUID(), "A1", "Main", LayoutStatus.ACTIVE));
 
         when(layoutPort.getBySearch(null)).thenReturn(layouts);
 
-        List<Layout> result = layoutService.findLayouts(searchKey);
+        assertSame(layouts, layoutService.findLayouts(null));
+        assertSame(layouts, layoutService.findLayouts(""));
+        assertSame(layouts, layoutService.findLayouts(" "));
+        assertSame(layouts, layoutService.findLayouts("   "));
 
-        assertSame(layouts, result);
-        verify(layoutPort).getBySearch(null);
+        verify(layoutPort, times(4)).getBySearch(null);
     }
 
     @Test
@@ -223,8 +221,8 @@ class LayoutServiceTest {
 
         when(layoutPort.getById(layoutId)).thenReturn(Optional.empty());
 
-        LayoutNotFoundException exception = assertThrows(
-                LayoutNotFoundException.class,
+        NotFoundException exception = assertThrows(
+                NotFoundException.class,
                 () -> layoutService.activateLayout(layoutId)
         );
 
@@ -239,8 +237,8 @@ class LayoutServiceTest {
 
         when(layoutPort.getById(layoutId)).thenReturn(Optional.of(layout));
 
-        LayoutConflictException exception = assertThrows(
-                LayoutConflictException.class,
+        ConflictException exception = assertThrows(
+                ConflictException.class,
                 () -> layoutService.activateLayout(layoutId)
         );
 
@@ -268,8 +266,8 @@ class LayoutServiceTest {
 
         when(layoutPort.getById(layoutId)).thenReturn(Optional.empty());
 
-        LayoutNotFoundException exception = assertThrows(
-                LayoutNotFoundException.class,
+        NotFoundException exception = assertThrows(
+                NotFoundException.class,
                 () -> layoutService.deactivateLayout(layoutId)
         );
 
@@ -284,8 +282,8 @@ class LayoutServiceTest {
 
         when(layoutPort.getById(layoutId)).thenReturn(Optional.of(layout));
 
-        LayoutConflictException exception = assertThrows(
-                LayoutConflictException.class,
+        ConflictException exception = assertThrows(
+                ConflictException.class,
                 () -> layoutService.deactivateLayout(layoutId)
         );
 

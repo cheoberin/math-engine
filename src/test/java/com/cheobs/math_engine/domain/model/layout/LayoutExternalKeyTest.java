@@ -1,5 +1,6 @@
 package com.cheobs.math_engine.domain.model.layout;
 
+import com.cheobs.math_engine.domain.model.common.ValidationException;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -9,15 +10,15 @@ class LayoutExternalKeyTest {
 
     @Test
     void shouldNormalizeExternalKey() {
-        LayoutExternalKey externalKey = new LayoutExternalKey(" a1b2 ");
+        LayoutExternalKey externalKey = new LayoutExternalKey(" abc4 ");
 
-        assertEquals("A1B2", externalKey.value());
+        assertEquals("ABC4", externalKey.value());
     }
 
     @Test
     void shouldThrowWhenExternalKeyIsNull() {
-        LayoutValidationExcepiton exception = assertThrows(
-                LayoutValidationExcepiton.class,
+        ValidationException exception = assertThrows(
+                ValidationException.class,
                 () -> new LayoutExternalKey(null)
         );
 
@@ -26,8 +27,8 @@ class LayoutExternalKeyTest {
 
     @Test
     void shouldThrowWhenExternalKeyIsBlank() {
-        LayoutValidationExcepiton exception = assertThrows(
-                LayoutValidationExcepiton.class,
+        ValidationException exception = assertThrows(
+                ValidationException.class,
                 () -> new LayoutExternalKey("   ")
         );
 
@@ -35,10 +36,17 @@ class LayoutExternalKeyTest {
     }
 
     @Test
+    void shouldAcceptExternalKeyWith4Chars() {
+        LayoutExternalKey externalKey = new LayoutExternalKey("ABC4");
+
+        assertEquals("ABC4", externalKey.value());
+    }
+
+    @Test
     void shouldThrowWhenExternalKeyHasMoreThan4Chars() {
-        LayoutValidationExcepiton exception = assertThrows(
-                LayoutValidationExcepiton.class,
-                () -> new LayoutExternalKey("ABCDE")
+        ValidationException exception = assertThrows(
+                ValidationException.class,
+                () -> new LayoutExternalKey("ABC12345")
         );
 
         assertEquals("validation.layout.external-key.short", exception.getIdentifier());
@@ -46,8 +54,8 @@ class LayoutExternalKeyTest {
 
     @Test
     void shouldThrowWhenExternalKeyHasInvalidCharacters() {
-        LayoutValidationExcepiton exception = assertThrows(
-                LayoutValidationExcepiton.class,
+        ValidationException exception = assertThrows(
+                ValidationException.class,
                 () -> new LayoutExternalKey("A-B")
         );
 
