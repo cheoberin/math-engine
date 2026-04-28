@@ -74,11 +74,11 @@ class FieldTest {
     @Test
     void shouldThrowWhenCreatingInputFieldFromCommandWithFormula() {
         Layout layout = anyLayout();
-        FieldCommand command = new FieldCommand("A1", FieldSource.INPUT, "A+B", FieldType.NUMBER, null);
+        FieldCommand command = new FieldCommand("A1", FieldSource.INPUT, "A+B", FieldType.NUMBER);
 
         ValidationException exception = assertThrows(
                 ValidationException.class,
-                () -> new Field(command, layout)
+                () -> new Field(command, layout, null)
         );
 
         assertEquals("validation.field.formula.must-be-null", exception.getIdentifier());
@@ -177,11 +177,11 @@ class FieldTest {
                 null
         );
 
-        FieldCommand command = new FieldCommand("A1", FieldSource.CALCULATION, null, FieldType.NUMBER, 1);
+        FieldCommand command = new FieldCommand("A1", FieldSource.CALCULATION, null, FieldType.NUMBER);
 
         ValidationException exception = assertThrows(
                 ValidationException.class,
-                () -> field.updateDetails(command)
+                () -> field.updateDetails(command, 1)
         );
 
         assertEquals("validation.field.formula.required", exception.getIdentifier());
@@ -201,11 +201,11 @@ class FieldTest {
                 1
         );
 
-        FieldCommand command = new FieldCommand("A1", FieldSource.INPUT, "A+B", FieldType.NUMBER, null);
+        FieldCommand command = new FieldCommand("A1", FieldSource.INPUT, "A+B", FieldType.NUMBER);
 
         ValidationException exception = assertThrows(
                 ValidationException.class,
-                () -> field.updateDetails(command)
+                () -> field.updateDetails(command, null)
         );
 
         assertEquals("validation.field.formula.must-be-null", exception.getIdentifier());
@@ -225,11 +225,11 @@ class FieldTest {
                 null
         );
 
-        FieldCommand command = new FieldCommand("A1", FieldSource.INPUT, null, FieldType.NUMBER, 2);
+        FieldCommand command = new FieldCommand("A1", FieldSource.INPUT, null, FieldType.NUMBER);
 
         ValidationException exception = assertThrows(
                 ValidationException.class,
-                () -> field.updateDetails(command)
+                () -> field.updateDetails(command, 2)
         );
 
         assertEquals("validation.field.calculation-order.must-be-null", exception.getIdentifier());
@@ -249,11 +249,11 @@ class FieldTest {
                 1
         );
 
-        FieldCommand command = new FieldCommand("A1", FieldSource.CALCULATION, "A+B", FieldType.NUMBER, null);
+        FieldCommand command = new FieldCommand("A1", FieldSource.CALCULATION, "A+B", FieldType.NUMBER);
 
         ValidationException exception = assertThrows(
                 ValidationException.class,
-                () -> field.updateDetails(command)
+                () -> field.updateDetails(command, null)
         );
 
         assertEquals("validation.field.calculation-order.required", exception.getIdentifier());

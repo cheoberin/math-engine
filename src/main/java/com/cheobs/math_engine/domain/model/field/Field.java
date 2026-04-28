@@ -28,7 +28,7 @@ public class Field {
         this.calculationOrder = calculationOrder;
     }
 
-    public Field(FieldCommand command, Layout layout) {
+    public Field(FieldCommand command, Layout layout, Integer calculationOrder) {
         Objects.requireNonNull(command, "FieldCommand cannot be null");
         this.externalKey = new FieldExternalKey(command.externalKey());
         this.layout = Objects.requireNonNull(layout, "Field layout cannot be null");
@@ -36,19 +36,19 @@ public class Field {
         this.formula = new FieldFormula(command.formula());
         validateFormulaBySource(this.source, this.formula);
         this.fieldType = Objects.requireNonNull(command.fieldType(), "Field type cannot be null");
-        validateCalculationOrderBySource(this.source, command.calculationOrder());
-        this.calculationOrder = command.calculationOrder();
+        validateCalculationOrderBySource(this.source, calculationOrder);
+        this.calculationOrder = calculationOrder;
     }
 
-    public void updateDetails(FieldCommand command) {
+    public void updateDetails(FieldCommand command, Integer calculationOrder) {
         Objects.requireNonNull(command, "FieldCommand cannot be null");
         this.externalKey = new FieldExternalKey(command.externalKey());
         this.source = Objects.requireNonNull(command.source(), "Field source cannot be null");
         this.formula = new FieldFormula(command.formula());
         validateFormulaBySource(this.source, this.formula);
         this.fieldType = Objects.requireNonNull(command.fieldType(), "Field type cannot be null");
-        validateCalculationOrderBySource(this.source, command.calculationOrder());
-        this.calculationOrder = command.calculationOrder();
+        validateCalculationOrderBySource(this.source, calculationOrder);
+        this.calculationOrder = calculationOrder;
     }
 
     private static void validateFormulaBySource(FieldSource source, FieldFormula formula) {

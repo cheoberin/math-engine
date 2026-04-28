@@ -21,8 +21,7 @@ public record FieldRequestDto(
         FieldSource source,
         String formula,
         @NotNull
-        FieldType fieldType,
-        Integer calculationOrder
+        FieldType fieldType
 ) {
 
     public FieldCommand toDomain() {
@@ -30,8 +29,7 @@ public record FieldRequestDto(
                 externalKey,
                 source,
                 formula,
-                fieldType,
-                calculationOrder
+                fieldType
         );
     }
 

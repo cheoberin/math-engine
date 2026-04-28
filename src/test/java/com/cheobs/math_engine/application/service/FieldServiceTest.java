@@ -2,6 +2,7 @@ package com.cheobs.math_engine.application.service;
 
 import com.cheobs.math_engine.domain.model.common.ConflictException;
 import com.cheobs.math_engine.domain.model.common.NotFoundException;
+import com.cheobs.math_engine.domain.model.common.ValidationException;
 import com.cheobs.math_engine.domain.model.field.Field;
 import com.cheobs.math_engine.domain.model.field.FieldCommand;
 import com.cheobs.math_engine.domain.model.field.FieldSource;
@@ -24,6 +25,7 @@ import java.util.UUID;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertSame;
 import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
@@ -46,7 +48,7 @@ class FieldServiceTest {
     void shouldCreateFieldWhenLayoutExistsAndExternalKeyIsAvailable() {
         UUID layoutId = UUID.randomUUID();
         Layout layout = anyLayout(layoutId);
-        FieldCommand command = new FieldCommand("ab1", FieldSource.INPUT, null, FieldType.NUMBER, null);
+        FieldCommand command = new FieldCommand("ab1", FieldSource.INPUT, null, FieldType.NUMBER);
 
         Field persisted = new Field(
                 UUID.randomUUID(),
@@ -60,6 +62,7 @@ class FieldServiceTest {
 
         when(layoutPort.getById(layoutId)).thenReturn(Optional.of(layout));
         when(fieldPort.getByLayoutIdAndExternalKey(layoutId, "ab1")).thenReturn(Optional.empty());
+        when(fieldPort.getByLayoutIdAndSearch(layoutId, null)).thenReturn(List.of());
         when(fieldPort.save(any(Field.class))).thenReturn(persisted);
 
         Field result = fieldService.createField(command, layoutId);
@@ -78,7 +81,7 @@ class FieldServiceTest {
     @Test
     void shouldThrowNotFoundWhenCreatingFieldForMissingLayout() {
         UUID layoutId = UUID.randomUUID();
-        FieldCommand command = new FieldCommand("A1", FieldSource.INPUT, null, FieldType.NUMBER, null);
+        FieldCommand command = new FieldCommand("A1", FieldSource.INPUT, null, FieldType.NUMBER);
 
         when(layoutPort.getById(layoutId)).thenReturn(Optional.empty());
 
@@ -95,7 +98,7 @@ class FieldServiceTest {
     void shouldThrowConflictWhenCreatingFieldWithExternalKeyAlreadyInUseInLayout() {
         UUID layoutId = UUID.randomUUID();
         Layout layout = anyLayout(layoutId);
-        FieldCommand command = new FieldCommand("A1", FieldSource.INPUT, null, FieldType.NUMBER, null);
+        FieldCommand command = new FieldCommand("A1", FieldSource.INPUT, null, FieldType.NUMBER);
 
         Field existing = new Field(
                 UUID.randomUUID(),
@@ -120,9 +123,67 @@ class FieldServiceTest {
     }
 
     @Test
+    void shouldThrowValidationWhenCreatingCalculationFieldWithMissingDependency() {
+        UUID layoutId = UUID.randomUUID();
+        Layout layout = anyLayout(layoutId);
+        FieldCommand command = new FieldCommand("B1", FieldSource.CALCULATION, "[X9]+1", FieldType.NUMBER);
+
+        when(layoutPort.getById(layoutId)).thenReturn(Optional.of(layout));
+        when(fieldPort.getByLayoutIdAndExternalKey(layoutId, "B1")).thenReturn(Optional.empty());
+        when(fieldPort.getByLayoutIdAndSearch(layoutId, null)).thenReturn(List.of());
+
+        ValidationException exception = assertThrows(
+                ValidationException.class,
+                () -> fieldService.createField(command, layoutId)
+        );
+
+        assertEquals("validation.field.formula.dependency.not-found", exception.getIdentifier());
+        verify(fieldPort, never()).save(any(Field.class));
+    }
+
+    @Test
+    void shouldThrowValidationWhenCreatingCalculationFieldWithMissingNumericDependency() {
+        UUID layoutId = UUID.randomUUID();
+        Layout layout = anyLayout(layoutId);
+        FieldCommand command = new FieldCommand("B1", FieldSource.CALCULATION, "[11]/[7]", FieldType.NUMBER);
+
+        when(layoutPort.getById(layoutId)).thenReturn(Optional.of(layout));
+        when(fieldPort.getByLayoutIdAndExternalKey(layoutId, "B1")).thenReturn(Optional.empty());
+        when(fieldPort.getByLayoutIdAndSearch(layoutId, null)).thenReturn(List.of());
+
+        ValidationException exception = assertThrows(
+                ValidationException.class,
+                () -> fieldService.createField(command, layoutId)
+        );
+
+        assertEquals("validation.field.formula.dependency.not-found", exception.getIdentifier());
+        verify(fieldPort, never()).save(any(Field.class));
+    }
+
+    @Test
+    void shouldThrowConflictWhenCreatingCalculationFieldThatIntroducesCycle() {
+        UUID layoutId = UUID.randomUUID();
+        Layout layout = anyLayout(layoutId);
+        Field existing = new Field(UUID.randomUUID(), "A1", layout, FieldSource.CALCULATION, "[B1]+1", FieldType.NUMBER, 1);
+        FieldCommand command = new FieldCommand("B1", FieldSource.CALCULATION, "[A1]+1", FieldType.NUMBER);
+
+        when(layoutPort.getById(layoutId)).thenReturn(Optional.of(layout));
+        when(fieldPort.getByLayoutIdAndExternalKey(layoutId, "B1")).thenReturn(Optional.empty());
+        when(fieldPort.getByLayoutIdAndSearch(layoutId, null)).thenReturn(List.of(existing));
+
+        ConflictException exception = assertThrows(
+                ConflictException.class,
+                () -> fieldService.createField(command, layoutId)
+        );
+
+        assertEquals("conflict.field.circular-dependency", exception.getIdentifier());
+        verify(fieldPort, never()).save(any(Field.class));
+    }
+
+    @Test
     void shouldThrowNotFoundWhenUpdatingMissingField() {
         UUID fieldId = UUID.randomUUID();
-        FieldCommand command = new FieldCommand("A1", FieldSource.INPUT, null, FieldType.NUMBER, null);
+        FieldCommand command = new FieldCommand("A1", FieldSource.INPUT, null, FieldType.NUMBER);
 
         when(fieldPort.getById(fieldId)).thenReturn(Optional.empty());
 
@@ -144,7 +205,7 @@ class FieldServiceTest {
         Field current = new Field(fieldId, "A1", layout, FieldSource.INPUT, null, FieldType.NUMBER, null);
         Field other = new Field(UUID.randomUUID(), "B1", layout, FieldSource.INPUT, null, FieldType.NUMBER, null);
 
-        FieldCommand command = new FieldCommand("B1", FieldSource.INPUT, null, FieldType.NUMBER, null);
+        FieldCommand command = new FieldCommand("B1", FieldSource.INPUT, null, FieldType.NUMBER);
 
         when(fieldPort.getById(fieldId)).thenReturn(Optional.of(current));
         when(fieldPort.getByLayoutIdAndExternalKey(layoutId, "B1")).thenReturn(Optional.of(other));
@@ -166,11 +227,13 @@ class FieldServiceTest {
 
         Field current = new Field(fieldId, "A1", layout, FieldSource.INPUT, null, FieldType.NUMBER, null);
         Field sameByExternalKey = new Field(fieldId, "B1", layout, FieldSource.INPUT, null, FieldType.NUMBER, null);
+        Field dependency = new Field(UUID.randomUUID(), "C1", layout, FieldSource.INPUT, null, FieldType.NUMBER, null);
 
-        FieldCommand command = new FieldCommand("b1", FieldSource.CALCULATION, "a + b", FieldType.NUMBER, 1);
+        FieldCommand command = new FieldCommand("b1", FieldSource.CALCULATION, "[C1]+1", FieldType.NUMBER);
 
         when(fieldPort.getById(fieldId)).thenReturn(Optional.of(current));
         when(fieldPort.getByLayoutIdAndExternalKey(layoutId, "b1")).thenReturn(Optional.of(sameByExternalKey));
+        when(fieldPort.getByLayoutIdAndSearch(layoutId, null)).thenReturn(List.of(current, dependency));
         when(fieldPort.save(current)).thenReturn(current);
 
         Field result = fieldService.updateField(fieldId, command);
@@ -178,9 +241,52 @@ class FieldServiceTest {
         assertSame(current, result);
         assertEquals("B1", result.getExternalKey());
         assertEquals(FieldSource.CALCULATION, result.getSource());
-        assertEquals("A+B", result.getFormula());
+        assertEquals("[C1]+1", result.getFormula());
         assertEquals(1, result.getCalculationOrder());
         verify(fieldPort).save(current);
+    }
+
+    @Test
+    void shouldCalculateOrderWhenCreatingCalculationField() {
+        UUID layoutId = UUID.randomUUID();
+        Layout layout = anyLayout(layoutId);
+
+        Field a1 = new Field(UUID.randomUUID(), "A1", layout, FieldSource.INPUT, null, FieldType.NUMBER, null);
+        Field b1 = new Field(UUID.randomUUID(), "B1", layout, FieldSource.CALCULATION, "[A1]+1", FieldType.NUMBER, 1);
+
+        FieldCommand command = new FieldCommand("C1", FieldSource.CALCULATION, "[B1]+1", FieldType.NUMBER);
+
+        when(layoutPort.getById(layoutId)).thenReturn(Optional.of(layout));
+        when(fieldPort.getByLayoutIdAndExternalKey(layoutId, "C1")).thenReturn(Optional.empty());
+        when(fieldPort.getByLayoutIdAndSearch(layoutId, null)).thenReturn(List.of(a1, b1));
+        when(fieldPort.save(any(Field.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        Field result = fieldService.createField(command, layoutId);
+
+        assertEquals("C1", result.getExternalKey());
+        assertEquals(2, result.getCalculationOrder());
+    }
+
+    @Test
+    void shouldKeepCalculationOrderNullForInputOnUpdate() {
+        UUID layoutId = UUID.randomUUID();
+        Layout layout = anyLayout(layoutId);
+        UUID fieldId = UUID.randomUUID();
+
+        Field current = new Field(fieldId, "A1", layout, FieldSource.CALCULATION, "[B1]+1", FieldType.NUMBER, 2);
+        Field sameByExternalKey = new Field(fieldId, "A1", layout, FieldSource.CALCULATION, "[B1]+1", FieldType.NUMBER, 2);
+        Field b1 = new Field(UUID.randomUUID(), "B1", layout, FieldSource.INPUT, null, FieldType.NUMBER, null);
+        FieldCommand command = new FieldCommand("A1", FieldSource.INPUT, null, FieldType.NUMBER);
+
+        when(fieldPort.getById(fieldId)).thenReturn(Optional.of(current));
+        when(fieldPort.getByLayoutIdAndExternalKey(layoutId, "A1")).thenReturn(Optional.of(sameByExternalKey));
+        when(fieldPort.getByLayoutIdAndSearch(layoutId, null)).thenReturn(List.of(current, b1));
+        when(fieldPort.save(current)).thenReturn(current);
+
+        Field result = fieldService.updateField(fieldId, command);
+
+        assertEquals(FieldSource.INPUT, result.getSource());
+        assertNull(result.getCalculationOrder());
     }
 
     @Test

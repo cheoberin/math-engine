@@ -4,7 +4,6 @@ public record FieldCommand(
         String externalKey,
         FieldSource source,
         String formula,
-        FieldType fieldType,
-        Integer calculationOrder
+        FieldType fieldType
 ) {
 }
