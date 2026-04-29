@@ -4,6 +4,7 @@ import com.cheobs.math_engine.adapter.output.jpa.entity.FieldEntity;
 import com.cheobs.math_engine.adapter.output.jpa.entity.LayoutEntity;
 import com.cheobs.math_engine.adapter.output.jpa.repository.FieldRepository;
 import com.cheobs.math_engine.domain.model.field.Field;
+import com.cheobs.math_engine.domain.model.field.FieldSource;
 import com.cheobs.math_engine.domain.model.layout.Layout;
 import com.cheobs.math_engine.domain.port.output.FieldPort;
 import org.springframework.stereotype.Service;
@@ -51,6 +52,11 @@ public class FieldAdapter implements FieldPort {
         return entities.stream()
                 .map(this::toDomain)
                 .toList();
+    }
+
+    @Override
+    public List<Field> getByLayoutIdAndFieldType(UUID layoutId, FieldSource fieldSource) {
+        return List.of();
     }
 
     @Override

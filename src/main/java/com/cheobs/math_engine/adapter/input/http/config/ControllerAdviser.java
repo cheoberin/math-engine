@@ -2,9 +2,11 @@ package com.cheobs.math_engine.adapter.input.http.config;
 
 import com.cheobs.math_engine.adapter.input.http.config.dto.ErrorDto;
 import com.cheobs.math_engine.adapter.input.http.config.dto.FieldErrorDto;
+import com.cheobs.math_engine.adapter.input.http.config.dto.SubmissionFieldValidationErrorDto;
 import com.cheobs.math_engine.domain.model.common.ConflictException;
 import com.cheobs.math_engine.domain.model.common.NotFoundException;
 import com.cheobs.math_engine.domain.model.common.ValidationException;
+import com.cheobs.math_engine.domain.model.submission.FieldSubmissionValidationException;
 import jakarta.servlet.http.HttpServletRequest;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -73,6 +75,22 @@ public class ControllerAdviser {
                 .status(HttpStatus.BAD_REQUEST)
                 .contentType(MediaType.APPLICATION_JSON)
                 .body(new ErrorDto(error.getMessage(), error.getIdentifier()));
+    }
+
+    @ExceptionHandler(FieldSubmissionValidationException.class)
+    public ResponseEntity<SubmissionFieldValidationErrorDto> handleFieldSubmissionValidationException(FieldSubmissionValidationException error) {
+        logger.warn(error.getMessage());
+
+        return ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .contentType(MediaType.APPLICATION_JSON)
+                .body(new SubmissionFieldValidationErrorDto(
+                        error.getMessage(),
+                        error.identifier,
+                        error.getDuplicateCodes(),
+                        error.getMissingCodes(),
+                        error.getNotExpectedCodes()
+                ));
     }
 
     @ExceptionHandler(Exception.class)
