@@ -20,6 +20,7 @@ class FieldTest {
         Field field = new Field(
                 UUID.randomUUID(),
                 "A1",
+                "Field A1",
                 layout,
                 FieldSource.INPUT,
                 null,
@@ -39,6 +40,7 @@ class FieldTest {
         Field field = new Field(
                 UUID.randomUUID(),
                 "A1",
+                "Field A1",
                 layout,
                 FieldSource.INPUT,
                 "   ",
@@ -60,6 +62,7 @@ class FieldTest {
                 () -> new Field(
                         UUID.randomUUID(),
                         "A1",
+                        "Field A1",
                         layout,
                         FieldSource.INPUT,
                         "A + B",
@@ -74,7 +77,7 @@ class FieldTest {
     @Test
     void shouldThrowWhenCreatingInputFieldFromCommandWithFormula() {
         Layout layout = anyLayout();
-        FieldCommand command = new FieldCommand("A1", FieldSource.INPUT, "A+B", FieldType.NUMBER);
+        FieldCommand command = new FieldCommand("A1", "Field A1", FieldSource.INPUT, "A+B", FieldType.NUMBER);
 
         ValidationException exception = assertThrows(
                 ValidationException.class,
@@ -93,6 +96,7 @@ class FieldTest {
                 () -> new Field(
                         UUID.randomUUID(),
                         "A1",
+                        "Field A1",
                         layout,
                         FieldSource.INPUT,
                         null,
@@ -111,6 +115,7 @@ class FieldTest {
         Field field = new Field(
                 UUID.randomUUID(),
                 "A1",
+                "Field A1",
                 layout,
                 FieldSource.CALCULATION,
                 " A + B ",
@@ -132,6 +137,7 @@ class FieldTest {
                 () -> new Field(
                         UUID.randomUUID(),
                         "A1",
+                        "Field A1",
                         layout,
                         FieldSource.CALCULATION,
                         "   ",
@@ -152,6 +158,7 @@ class FieldTest {
                 () -> new Field(
                         UUID.randomUUID(),
                         "A1",
+                        "Field A1",
                         layout,
                         FieldSource.CALCULATION,
                         "A+B",
@@ -170,6 +177,7 @@ class FieldTest {
         Field field = new Field(
                 UUID.randomUUID(),
                 "A1",
+                "Field A1",
                 layout,
                 FieldSource.INPUT,
                 null,
@@ -177,7 +185,7 @@ class FieldTest {
                 null
         );
 
-        FieldCommand command = new FieldCommand("A1", FieldSource.CALCULATION, null, FieldType.NUMBER);
+        FieldCommand command = new FieldCommand("A1", "Field A1", FieldSource.CALCULATION, null, FieldType.NUMBER);
 
         ValidationException exception = assertThrows(
                 ValidationException.class,
@@ -194,6 +202,7 @@ class FieldTest {
         Field field = new Field(
                 UUID.randomUUID(),
                 "A1",
+                "Field A1",
                 layout,
                 FieldSource.CALCULATION,
                 "A+B",
@@ -201,7 +210,7 @@ class FieldTest {
                 1
         );
 
-        FieldCommand command = new FieldCommand("A1", FieldSource.INPUT, "A+B", FieldType.NUMBER);
+        FieldCommand command = new FieldCommand("A1", "Field A1", FieldSource.INPUT, "A+B", FieldType.NUMBER);
 
         ValidationException exception = assertThrows(
                 ValidationException.class,
@@ -218,6 +227,7 @@ class FieldTest {
         Field field = new Field(
                 UUID.randomUUID(),
                 "A1",
+                "Field A1",
                 layout,
                 FieldSource.INPUT,
                 null,
@@ -225,7 +235,7 @@ class FieldTest {
                 null
         );
 
-        FieldCommand command = new FieldCommand("A1", FieldSource.INPUT, null, FieldType.NUMBER);
+        FieldCommand command = new FieldCommand("A1", "Field A1", FieldSource.INPUT, null, FieldType.NUMBER);
 
         ValidationException exception = assertThrows(
                 ValidationException.class,
@@ -242,6 +252,7 @@ class FieldTest {
         Field field = new Field(
                 UUID.randomUUID(),
                 "A1",
+                "Field A1",
                 layout,
                 FieldSource.CALCULATION,
                 "A+B",
@@ -249,7 +260,7 @@ class FieldTest {
                 1
         );
 
-        FieldCommand command = new FieldCommand("A1", FieldSource.CALCULATION, "A+B", FieldType.NUMBER);
+        FieldCommand command = new FieldCommand("A1", "Field A1", FieldSource.CALCULATION, "A+B", FieldType.NUMBER);
 
         ValidationException exception = assertThrows(
                 ValidationException.class,

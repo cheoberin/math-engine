@@ -10,15 +10,17 @@ public class Field {
 
     private UUID id;
     private FieldExternalKey externalKey;
+    private FieldName name;
     private final Layout layout;
     private FieldSource source;
     private FieldFormula formula;
     private FieldType fieldType;
     private Integer calculationOrder;
 
-    public Field(UUID id, String externalKey, Layout layout, FieldSource source, String formula, FieldType fieldType, Integer calculationOrder) {
+    public Field(UUID id, String externalKey, String name, Layout layout, FieldSource source, String formula, FieldType fieldType, Integer calculationOrder) {
         this.id = Objects.requireNonNull(id, "Field id cannot be null");
         this.externalKey = new FieldExternalKey(externalKey);
+        this.name = new FieldName(name);
         this.layout = Objects.requireNonNull(layout, "Field layout cannot be null");
         this.source = Objects.requireNonNull(source, "Field source cannot be null");
         this.formula = new FieldFormula(formula);
@@ -31,6 +33,7 @@ public class Field {
     public Field(FieldCommand command, Layout layout, Integer calculationOrder) {
         Objects.requireNonNull(command, "FieldCommand cannot be null");
         this.externalKey = new FieldExternalKey(command.externalKey());
+        this.name = new FieldName(command.name());
         this.layout = Objects.requireNonNull(layout, "Field layout cannot be null");
         this.source = Objects.requireNonNull(command.source(), "Field source cannot be null");
         this.formula = new FieldFormula(command.formula());
@@ -43,6 +46,7 @@ public class Field {
     public void updateDetails(FieldCommand command, Integer calculationOrder) {
         Objects.requireNonNull(command, "FieldCommand cannot be null");
         this.externalKey = new FieldExternalKey(command.externalKey());
+        this.name = new FieldName(command.name());
         this.source = Objects.requireNonNull(command.source(), "Field source cannot be null");
         this.formula = new FieldFormula(command.formula());
         validateFormulaBySource(this.source, this.formula);
@@ -89,6 +93,10 @@ public class Field {
 
     public String getExternalKey() {
         return externalKey.value();
+    }
+
+    public String getName() {
+        return name.value();
     }
 
     public Layout getLayout() {

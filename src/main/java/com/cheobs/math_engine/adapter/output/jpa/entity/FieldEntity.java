@@ -17,6 +17,9 @@ public class FieldEntity {
     @Column(name = "external_key", nullable = false)
     private String externalKey;
 
+    @Column(name = "name", nullable = false)
+    private String name;
+
     @ManyToOne
     @JoinColumn(name = "layout_id", nullable = false, updatable = false)
     private LayoutEntity layout;
@@ -38,9 +41,10 @@ public class FieldEntity {
     public FieldEntity() {
     }
 
-    public FieldEntity(UUID id, String externalKey, LayoutEntity layout, FieldSource source, String formula, FieldType fieldType, Integer calculationOrder) {
+    public FieldEntity(UUID id, String externalKey, String name, LayoutEntity layout, FieldSource source, String formula, FieldType fieldType, Integer calculationOrder) {
         this.id = id;
         this.externalKey = externalKey;
+        this.name = name;
         this.layout = layout;
         this.source = source;
         this.formula = formula;
@@ -62,6 +66,14 @@ public class FieldEntity {
 
     public void setExternalKey(String externalKey) {
         this.externalKey = externalKey;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 
     public LayoutEntity getLayout() {

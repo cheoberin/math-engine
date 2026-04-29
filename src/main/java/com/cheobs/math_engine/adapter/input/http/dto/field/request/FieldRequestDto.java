@@ -15,6 +15,9 @@ public record FieldRequestDto(
         @Length(max = 7)
         @Pattern(regexp = "^[a-zA-Z0-9]+$", message = "Field external key must contain only letters and numbers")
         String externalKey,
+        @NotBlank
+        @Length(max = 255)
+        String name,
         @NotNull
         UUID layout,
         @NotNull
@@ -27,6 +30,7 @@ public record FieldRequestDto(
     public FieldCommand toDomain() {
         return new FieldCommand(
                 externalKey,
+                name,
                 source,
                 formula,
                 fieldType

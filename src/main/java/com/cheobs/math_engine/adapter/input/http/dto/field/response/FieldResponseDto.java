@@ -7,6 +7,7 @@ import java.util.UUID;
 public record FieldResponseDto(
         UUID id,
         String externalKey,
+        String name,
         UUID layoutId,
         String layoutExternalKey,
         String layoutName
@@ -18,6 +19,7 @@ public record FieldResponseDto(
         this(
                 field.getId(),
                 field.getExternalKey(),
+                field.getName(),
                 field.getLayout().getId(),
                 field.getLayout().getExternalKey(),
                 field.getLayout().getName());

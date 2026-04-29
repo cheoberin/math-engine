@@ -19,7 +19,7 @@ public interface FieldRepository extends JpaRepository<FieldEntity, UUID> {
     @Query("SELECT f FROM FieldEntity f WHERE f.layout.id = :layoutId")
     List<FieldEntity> findByLayoutId(@Param("layoutId") UUID layoutId);
 
-    @Query("SELECT f FROM FieldEntity f WHERE f.layout.id = :layoutId AND (f.externalKey ILIKE %:search% OR f.layout.name ILIKE %:search%)")
+    @Query("SELECT f FROM FieldEntity f WHERE f.layout.id = :layoutId AND (f.externalKey ILIKE %:search% OR f.name ILIKE %:search%)")
     List<FieldEntity> findByLayoutIdAndSearch(@Param("layoutId") UUID layoutId, @Param("search") String search);
 
 }

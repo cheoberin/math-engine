@@ -74,6 +74,7 @@ public class FieldAdapter implements FieldPort {
         return new FieldEntity(
                 field.getId(),
                 field.getExternalKey(),
+                field.getName(),
                 layoutEntity,
                 field.getSource(),
                 field.getFormula(),
@@ -94,6 +95,7 @@ public class FieldAdapter implements FieldPort {
         return new Field(
                 entity.getId(),
                 entity.getExternalKey(),
+                entity.getName(),
                 layout,
                 entity.getSource(),
                 entity.getFormula(),

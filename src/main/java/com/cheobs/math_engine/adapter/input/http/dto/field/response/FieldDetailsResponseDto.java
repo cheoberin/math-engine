@@ -9,6 +9,7 @@ import java.util.UUID;
 public record FieldDetailsResponseDto(
         UUID id,
         String externalKey,
+        String name,
         UUID layoutId,
         String layoutExternalKey,
         String layoutName,
@@ -22,6 +23,7 @@ public record FieldDetailsResponseDto(
         this(
                 field.getId(),
                 field.getExternalKey(),
+                field.getName(),
                 field.getLayout().getId(),
                 field.getLayout().getExternalKey(),
                 field.getLayout().getName(),

@@ -123,8 +123,8 @@ public class FieldService implements FieldUseCase {
 
         validateDependencies(nodes);
         Map<String, Set<String>> graph = buildGraph(nodes);
-        List<String> sorted = sort(graph);
-        Map<String, Integer> calculationOrderByKey = assignCalculationOrder(nodes, sorted);
+        sort(graph);
+        Map<String, Integer> calculationOrderByKey = assignCalculationOrder(nodes, graph);
 
         String targetExternalKey = normalizeExternalKey(command.externalKey());
         Integer targetOrder = command.source() == FieldSource.CALCULATION
@@ -192,21 +192,46 @@ public class FieldService implements FieldUseCase {
         return graph;
     }
 
-    private Map<String, Integer> assignCalculationOrder(List<GraphNode> nodes, List<String> sorted) {
+    private Map<String, Integer> assignCalculationOrder(List<GraphNode> nodes, Map<String, Set<String>> graph) {
         Map<String, FieldSource> sourceByExternalKey = new HashMap<>();
         for (GraphNode node : nodes) {
             sourceByExternalKey.put(node.externalKey(), node.source());
         }
 
         Map<String, Integer> orderByExternalKey = new HashMap<>();
-        int next = 1;
-        for (String externalKey : sorted) {
+        Map<String, Integer> levelMemo = new HashMap<>();
+
+        for (String externalKey : graph.keySet()) {
             if (sourceByExternalKey.get(externalKey) == FieldSource.CALCULATION) {
-                orderByExternalKey.put(externalKey, next++);
+                int level = calculateLevel(externalKey, graph, sourceByExternalKey, levelMemo);
+                orderByExternalKey.put(externalKey, level);
             }
         }
 
         return orderByExternalKey;
+    }
+
+    private int calculateLevel(String externalKey,
+                               Map<String, Set<String>> graph,
+                               Map<String, FieldSource> sourceByExternalKey,
+                               Map<String, Integer> levelMemo) {
+
+        if (levelMemo.containsKey(externalKey)) {
+            return levelMemo.get(externalKey);
+        }
+
+        int maxDependencyLevel = 0;
+        for (String dep : graph.getOrDefault(externalKey, Set.of())) {
+            int depLevel = calculateLevel(dep, graph, sourceByExternalKey, levelMemo);
+            maxDependencyLevel = Math.max(maxDependencyLevel, depLevel);
+        }
+
+        int level = sourceByExternalKey.get(externalKey) == FieldSource.CALCULATION
+                ? maxDependencyLevel + 1
+                : 0;
+
+        levelMemo.put(externalKey, level);
+        return level;
     }
 
     private List<String> sort(Map<String, Set<String>> graph) {
