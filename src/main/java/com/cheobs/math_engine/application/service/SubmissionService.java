@@ -9,12 +9,12 @@ import com.cheobs.math_engine.domain.model.submission.*;
 import com.cheobs.math_engine.domain.port.input.SubmissionUseCase;
 import com.cheobs.math_engine.domain.port.output.FieldPort;
 import com.cheobs.math_engine.domain.port.output.LayoutPort;
+import com.cheobs.math_engine.domain.port.output.SubmissionPort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.HashSet;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -23,13 +23,16 @@ public class SubmissionService implements SubmissionUseCase {
 
     private final LayoutPort layoutPort;
     private final FieldPort fieldPort;
+    private final SubmissionPort submissionPort;
 
     public SubmissionService(
             LayoutPort layoutPort,
-            FieldPort fieldPort
+            FieldPort fieldPort,
+            SubmissionPort submissionPort
     ) {
         this.layoutPort = layoutPort;
         this.fieldPort = fieldPort;
+        this.submissionPort = submissionPort;
     }
 
     @Override
@@ -48,15 +51,25 @@ public class SubmissionService implements SubmissionUseCase {
         validateSubmissionFields(command.fields(), inputFields);
 
         Submission submission = new Submission(layout);
+        var savedSubmission = submissionPort.save(submission);
+
+        var commandFieldsMap = command.fields().stream()
+                .collect(Collectors.toMap(
+                        SubmissionFieldCommand::fieldExternalKey,
+                        SubmissionFieldCommand::value,
+                        (existing, replacement) -> existing
+                ));
 
         List<SubmissionField> submissionFields = inputFields.stream().map(
                 field -> new SubmissionField(
-
+                        savedSubmission,
+                        field,
+                        commandFieldsMap.get(field.getExternalKey())
                 )
-        )
+        ).toList();
 
-
-        return null;
+        submissionPort.save(submissionFields);
+        return savedSubmission;
     }
 
     private void validateSubmissionFields(List<SubmissionFieldCommand> submissionFields, List<Field> expectedFields) {
@@ -90,10 +103,10 @@ public class SubmissionService implements SubmissionUseCase {
 
         for (SubmissionFieldCommand fieldCommand : submissionFields) {
 
-            Optional<String> keyOpt = fieldCommand.fieldExternalKey().describeConstable();
-            String key = keyOpt.orElseThrow(
-                    () -> new ConflictException("Field external key cannot be null: " + fieldCommand.fieldExternalKey(), "conflict.field.external-key.null")
-            );
+            String key = fieldCommand.fieldExternalKey();
+            if (key == null) {
+                throw new ConflictException("Field external key cannot be null", "conflict.field.external-key.null");
+            }
 
             if (!seenFields.add(key)) {
                 duplicateFields.add(key);

@@ -12,14 +12,7 @@ import com.cheobs.math_engine.domain.port.output.LayoutPort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.UUID;
+import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -113,10 +106,12 @@ public class FieldService implements FieldUseCase {
     private Field getFieldOrThrow(UUID id) {
         return fieldPort.getById(id).orElseThrow(() -> new NotFoundException(FIELD_NOT_FOUND_BY_ID_MESSAGE + id, FIELD_NOT_FOUND_IDENTIFIER));
     }
-    
-    private record GraphNode(String externalKey, FieldSource source, String formula) {}
 
-    private record PlannedFieldCommand(FieldCommand command, Integer calculationOrder) {}
+    private record GraphNode(String externalKey, FieldSource source, String formula) {
+    }
+
+    private record PlannedFieldCommand(FieldCommand command, Integer calculationOrder) {
+    }
 
     private PlannedFieldCommand planCommand(List<Field> existingFields, FieldCommand command, UUID updatedId) {
         List<GraphNode> nodes = toGraphNodes(existingFields, command, updatedId);
@@ -234,7 +229,7 @@ public class FieldService implements FieldUseCase {
         return level;
     }
 
-    private List<String> sort(Map<String, Set<String>> graph) {
+    private void sort(Map<String, Set<String>> graph) {
         List<String> result = new ArrayList<>();
         Set<String> visited = new HashSet<>();
         Set<String> visiting = new HashSet<>();
@@ -244,8 +239,6 @@ public class FieldService implements FieldUseCase {
         for (String node : nodes) {
             dfs(node, graph, visited, visiting, result);
         }
-
-        return result;
     }
 
     private void dfs(String node, Map<String, Set<String>> graph, Set<String> visited, Set<String> visiting, List<String> result) {
