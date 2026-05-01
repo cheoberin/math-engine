@@ -1,7 +1,6 @@
 package com.cheobs.math_engine.adapter.output.jpa.repository;
 
 import com.cheobs.math_engine.adapter.output.jpa.entity.FieldEntity;
-import com.cheobs.math_engine.domain.model.field.Field;
 import com.cheobs.math_engine.domain.model.field.FieldSource;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

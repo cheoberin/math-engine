@@ -14,6 +14,7 @@ import com.cheobs.math_engine.domain.port.output.SubmissionPort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class SubmissionAdapter implements SubmissionPort {
@@ -47,6 +48,17 @@ public class SubmissionAdapter implements SubmissionPort {
         return entities.stream()
                 .map(this::toDomain)
                 .toList();
+    }
+
+    @Override
+    public List<SubmissionField> getSubmissionFieldsBySubmission(UUID id) {
+
+        var entities = submissionFieldRepository.findBySubmissionIdWithField(id);
+
+        return entities.stream()
+                .map(this::toDomain)
+                .toList();
+
     }
 
     private LayoutEntity toEntity(Layout layout) {
