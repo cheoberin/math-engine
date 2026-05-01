@@ -56,7 +56,8 @@ public class FieldAdapter implements FieldPort {
 
     @Override
     public List<Field> getByLayoutIdAndFieldType(UUID layoutId, FieldSource fieldSource) {
-        return List.of();
+        var response = fieldRepository.findByLayoutIdAndSource(layoutId, fieldSource);
+        return response.stream().map(this::toDomain).toList();
     }
 
     @Override

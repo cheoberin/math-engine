@@ -49,29 +49,35 @@ public class SubmissionAdapter implements SubmissionPort {
                 .toList();
     }
 
-    private SubmissionEntity toEntity(Submission submission) {
-        LayoutEntity layoutEntity = new LayoutEntity(
-                submission.getLayout().getId(),
-                submission.getLayout().getExternalKey(),
-                submission.getLayout().getName(),
-                submission.getLayout().getStatus()
+    private LayoutEntity toEntity(Layout layout) {
+        return new LayoutEntity(
+                layout.getId(),
+                layout.getExternalKey(),
+                layout.getName(),
+                layout.getStatus()
         );
+    }
 
+    private SubmissionEntity toEntity(Submission submission) {
         return new SubmissionEntity(
                 submission.getId(),
-                layoutEntity,
+                toEntity(submission.getLayout()),
                 submission.getStatus(),
                 submission.getReceivedAt()
         );
     }
 
-    private Submission toDomain(SubmissionEntity entity) {
-        Layout layout = new Layout(
-                entity.getLayout().getId(),
-                entity.getLayout().getExternalKey(),
-                entity.getLayout().getName(),
-                entity.getLayout().getStatus()
+    private Layout toDomain(LayoutEntity entity) {
+        return new Layout(
+                entity.getId(),
+                entity.getExternalKey(),
+                entity.getName(),
+                entity.getStatus()
         );
+    }
+
+    private Submission toDomain(SubmissionEntity entity) {
+        Layout layout = toDomain(entity.getLayout());
 
         return new Submission(
                 entity.getId(),
@@ -84,7 +90,7 @@ public class SubmissionAdapter implements SubmissionPort {
     private SubmissionFieldEntity toEntity(SubmissionField submissionField) {
         SubmissionEntity submissionEntity = new SubmissionEntity(
                 submissionField.getSubmission().getId(),
-                null,
+                toEntity(submissionField.getSubmission().getLayout()),
                 submissionField.getSubmission().getStatus(),
                 submissionField.getSubmission().getReceivedAt()
         );
@@ -93,7 +99,7 @@ public class SubmissionAdapter implements SubmissionPort {
                 submissionField.getField().getId(),
                 submissionField.getField().getExternalKey(),
                 submissionField.getField().getName(),
-                null,
+                toEntity(submissionField.getField().getLayout()),
                 submissionField.getField().getSource(),
                 submissionField.getField().getFormula(),
                 submissionField.getField().getFieldType(),
@@ -109,12 +115,9 @@ public class SubmissionAdapter implements SubmissionPort {
     }
 
     private SubmissionField toDomain(SubmissionFieldEntity entity) {
-        Layout layout = new Layout(
-                entity.getSubmission().getLayout().getId(),
-                entity.getSubmission().getLayout().getExternalKey(),
-                entity.getSubmission().getLayout().getName(),
-                entity.getSubmission().getLayout().getStatus()
-        );
+        LayoutEntity submissionLayoutEntity = entity.getSubmission().getLayout();
+        LayoutEntity fieldLayoutEntity = entity.getField().getLayout();
+        Layout layout = toDomain(submissionLayoutEntity != null ? submissionLayoutEntity : fieldLayoutEntity);
 
         Submission submission = new Submission(
                 entity.getSubmission().getId(),
@@ -123,11 +126,13 @@ public class SubmissionAdapter implements SubmissionPort {
                 entity.getSubmission().getReceivedAt()
         );
 
+        Layout fieldLayout = fieldLayoutEntity != null ? toDomain(fieldLayoutEntity) : layout;
+
         Field field = new Field(
                 entity.getField().getId(),
                 entity.getField().getExternalKey(),
                 entity.getField().getName(),
-                layout,
+                fieldLayout,
                 entity.getField().getSource(),
                 entity.getField().getFormula(),
                 entity.getField().getFieldType(),

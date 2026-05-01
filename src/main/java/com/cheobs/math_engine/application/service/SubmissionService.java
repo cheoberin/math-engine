@@ -40,7 +40,7 @@ public class SubmissionService implements SubmissionUseCase {
     public Submission createSubmission(SubmissionCommand command) {
 
         var layout = layoutPort.getByExternalKey(command.layoutExternalKey())
-                .orElseThrow(() -> new NotFoundException("layout external key not found", "not-found.layout"));
+                .orElseThrow(() -> new NotFoundException("Layout external key not found", "not-found.layout"));
 
         if (LayoutStatus.INACTIVE.equals(layout.getStatus())) {
             throw new ConflictException("Cannot submit to an inactive layout: " + command.layoutExternalKey(), "conflict.layout.inactive");

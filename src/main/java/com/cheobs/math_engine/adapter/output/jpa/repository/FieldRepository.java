@@ -1,6 +1,8 @@
 package com.cheobs.math_engine.adapter.output.jpa.repository;
 
 import com.cheobs.math_engine.adapter.output.jpa.entity.FieldEntity;
+import com.cheobs.math_engine.domain.model.field.Field;
+import com.cheobs.math_engine.domain.model.field.FieldSource;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -21,5 +23,7 @@ public interface FieldRepository extends JpaRepository<FieldEntity, UUID> {
 
     @Query("SELECT f FROM FieldEntity f WHERE f.layout.id = :layoutId AND (f.externalKey ILIKE %:search% OR f.name ILIKE %:search%)")
     List<FieldEntity> findByLayoutIdAndSearch(@Param("layoutId") UUID layoutId, @Param("search") String search);
+
+    List<FieldEntity> findByLayoutIdAndSource(UUID layoutId, FieldSource fieldSource);
 
 }
