@@ -1,6 +1,7 @@
 package com.cheobs.math_engine.adapter.output.jpa.implementation;
 
 import com.cheobs.math_engine.adapter.output.jpa.entity.SubmissionFieldEntity;
+import com.cheobs.math_engine.adapter.output.jpa.repository.ProcessedFieldRepository;
 import com.cheobs.math_engine.adapter.output.jpa.repository.SubmissionFieldRepository;
 import com.cheobs.math_engine.adapter.output.jpa.repository.SubmissionRepository;
 import com.cheobs.math_engine.domain.model.field.Field;
@@ -38,11 +39,14 @@ class SubmissionAdapterTest {
     @Mock
     private SubmissionFieldRepository submissionFieldRepository;
 
+    @Mock
+    private ProcessedFieldRepository processedFieldRepository;
+
     private SubmissionAdapter submissionAdapter;
 
     @BeforeEach
     void setUp() {
-        submissionAdapter = new SubmissionAdapter(submissionRepository, submissionFieldRepository);
+        submissionAdapter = new SubmissionAdapter(submissionRepository, submissionFieldRepository, processedFieldRepository);
     }
 
     @Test
@@ -54,7 +58,7 @@ class SubmissionAdapterTest {
 
         when(submissionFieldRepository.saveAll(anyList())).thenAnswer(invocation -> invocation.getArgument(0));
 
-        List<SubmissionField> savedSubmissionFields = submissionAdapter.save(List.of(submissionField));
+        List<SubmissionField> savedSubmissionFields = submissionAdapter.saveSubmissionFields(List.of(submissionField));
 
         assertEquals(1, savedSubmissionFields.size());
 

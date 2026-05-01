@@ -6,8 +6,8 @@ import java.math.BigDecimal;
 import java.util.UUID;
 
 @Entity
-@Table(name = "submission_field", uniqueConstraints = {@UniqueConstraint(name = "uk_submission_field", columnNames = {"submission_id", "field_id"})})
-public class SubmissionFieldEntity {
+@Table(name = "processed_field", uniqueConstraints = {@UniqueConstraint(name = "uk_processed_field", columnNames = {"submission_id", "field_id"})})
+public class ProcessedFieldEntity {
 
     @Id
     @GeneratedValue(strategy = GenerationType.UUID)
@@ -24,10 +24,10 @@ public class SubmissionFieldEntity {
     @Column(name = "value", nullable = false, precision = 19, scale = 6)
     private BigDecimal value;
 
-    public SubmissionFieldEntity() {
+    public ProcessedFieldEntity() {
     }
 
-    public SubmissionFieldEntity(UUID id, SubmissionEntity submission, FieldEntity field, BigDecimal value) {
+    public ProcessedFieldEntity(UUID id, SubmissionEntity submission, FieldEntity field, BigDecimal value) {
         this.id = id;
         this.submission = submission;
         this.field = field;

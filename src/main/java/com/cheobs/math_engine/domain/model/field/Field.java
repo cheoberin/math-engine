@@ -1,6 +1,6 @@
 package com.cheobs.math_engine.domain.model.field;
 
-import com.cheobs.math_engine.domain.model.common.ValidationException;
+import com.cheobs.math_engine.domain.model.common.exceptions.ValidationException;
 import com.cheobs.math_engine.domain.model.layout.Layout;
 
 import java.util.Objects;

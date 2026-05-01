@@ -1,8 +1,8 @@
 package com.cheobs.math_engine.application.service;
 
-import com.cheobs.math_engine.domain.model.common.ConflictException;
-import com.cheobs.math_engine.domain.model.common.NotFoundException;
-import com.cheobs.math_engine.domain.model.common.ValidationException;
+import com.cheobs.math_engine.domain.model.common.exceptions.ConflictException;
+import com.cheobs.math_engine.domain.model.common.exceptions.NotFoundException;
+import com.cheobs.math_engine.domain.model.common.exceptions.ValidationException;
 import com.cheobs.math_engine.domain.model.field.Field;
 import com.cheobs.math_engine.domain.model.field.FieldCommand;
 import com.cheobs.math_engine.domain.model.field.FieldSource;

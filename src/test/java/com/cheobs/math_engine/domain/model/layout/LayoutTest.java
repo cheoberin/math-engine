@@ -1,6 +1,6 @@
 package com.cheobs.math_engine.domain.model.layout;
 
-import com.cheobs.math_engine.domain.model.common.ConflictException;
+import com.cheobs.math_engine.domain.model.common.exceptions.ConflictException;
 import org.junit.jupiter.api.Test;
 
 import java.util.UUID;

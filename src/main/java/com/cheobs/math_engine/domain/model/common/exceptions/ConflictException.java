@@ -1,4 +1,4 @@
-package com.cheobs.math_engine.domain.model.common;
+package com.cheobs.math_engine.domain.model.common.exceptions;
 
 public class ConflictException extends RuntimeException {
 

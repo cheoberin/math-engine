@@ -12,7 +12,7 @@ CREATE TABLE submission_field
     id            UUID PRIMARY KEY,
     submission_id UUID           NOT NULL,
     field_id      UUID           NOT NULL,
-    value         DECIMAL(19, 5) NOT NULL,
+    value         DECIMAL(19, 6) NOT NULL,
     UNIQUE (submission_id, field_id),
     FOREIGN KEY (submission_id) REFERENCES submission (id),
     FOREIGN KEY (field_id) REFERENCES field (id)

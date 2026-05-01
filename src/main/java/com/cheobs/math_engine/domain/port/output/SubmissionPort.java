@@ -1,5 +1,6 @@
 package com.cheobs.math_engine.domain.port.output;
 
+import com.cheobs.math_engine.domain.model.submission.ProcessedField;
 import com.cheobs.math_engine.domain.model.submission.Submission;
 import com.cheobs.math_engine.domain.model.submission.SubmissionField;
 
@@ -10,8 +11,11 @@ public interface SubmissionPort {
 
     Submission save(Submission submission);
 
-    List<SubmissionField> save(List<SubmissionField> submissionFields);
+    List<SubmissionField> saveSubmissionFields(List<SubmissionField> submissionFields);
 
     List<SubmissionField> getSubmissionFieldsBySubmission(UUID id);
 
+    List<ProcessedField> saveProcessedFields(List<ProcessedField> processedFields);
+
+    List<Submission> pullPendingSubmisions(Integer quantity);
 }

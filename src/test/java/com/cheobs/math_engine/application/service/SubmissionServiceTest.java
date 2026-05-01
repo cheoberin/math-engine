@@ -1,7 +1,7 @@
 package com.cheobs.math_engine.application.service;
 
-import com.cheobs.math_engine.domain.model.common.ConflictException;
-import com.cheobs.math_engine.domain.model.common.NotFoundException;
+import com.cheobs.math_engine.domain.model.common.exceptions.ConflictException;
+import com.cheobs.math_engine.domain.model.common.exceptions.NotFoundException;
 import com.cheobs.math_engine.domain.model.field.Field;
 import com.cheobs.math_engine.domain.model.field.FieldSource;
 import com.cheobs.math_engine.domain.model.field.FieldType;
@@ -19,6 +19,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
+import java.time.OffsetDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -54,12 +55,12 @@ class SubmissionServiceTest {
                 new SubmissionFieldCommand("B1", BigDecimal.valueOf(20))
         ));
 
-        Submission savedSubmission = new Submission(UUID.randomUUID(), layout, SubmissionStatus.PENDING, null);
+        Submission savedSubmission = new Submission(UUID.randomUUID(), layout, SubmissionStatus.PENDING, OffsetDateTime.now());
 
         when(layoutPort.getByExternalKey("LAY1")).thenReturn(Optional.of(layout));
         when(fieldPort.getByLayoutIdAndFieldType(layoutId, FieldSource.INPUT)).thenReturn(List.of(fieldA1, fieldB1));
         when(submissionPort.save(any(Submission.class))).thenReturn(savedSubmission);
-        when(submissionPort.save(anyList())).thenReturn(List.of());
+        when(submissionPort.saveSubmissionFields(anyList())).thenReturn(List.of());
 
         Submission result = submissionService.createSubmission(command);
 
@@ -67,7 +68,7 @@ class SubmissionServiceTest {
         verify(submissionPort).save(any(Submission.class));
 
         ArgumentCaptor<List<SubmissionField>> captor = ArgumentCaptor.captor();
-        verify(submissionPort).save(captor.capture());
+        verify(submissionPort).saveSubmissionFields(captor.capture());
         List<SubmissionField> submissionFields = captor.getValue();
         assertEquals(2, submissionFields.size());
     }
@@ -216,17 +217,17 @@ class SubmissionServiceTest {
                 new SubmissionFieldCommand("A1", expectedValue)
         ));
 
-        Submission savedSubmission = new Submission(UUID.randomUUID(), layout, SubmissionStatus.PENDING, null);
+        Submission savedSubmission = new Submission(UUID.randomUUID(), layout, SubmissionStatus.PENDING, OffsetDateTime.now());
 
         when(layoutPort.getByExternalKey("LAY1")).thenReturn(Optional.of(layout));
         when(fieldPort.getByLayoutIdAndFieldType(layoutId, FieldSource.INPUT)).thenReturn(List.of(fieldA1));
         when(submissionPort.save(any(Submission.class))).thenReturn(savedSubmission);
-        when(submissionPort.save(anyList())).thenReturn(List.of());
+        when(submissionPort.saveSubmissionFields(anyList())).thenReturn(List.of());
 
         submissionService.createSubmission(command);
 
         ArgumentCaptor<List<SubmissionField>> captor = ArgumentCaptor.captor();
-        verify(submissionPort).save(captor.capture());
+        verify(submissionPort).saveSubmissionFields(captor.capture());
 
         List<SubmissionField> saved = captor.getValue();
         assertEquals(1, saved.size());

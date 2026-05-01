@@ -1,7 +1,7 @@
 package com.cheobs.math_engine.application.service;
 
-import com.cheobs.math_engine.domain.model.common.ConflictException;
-import com.cheobs.math_engine.domain.model.common.NotFoundException;
+import com.cheobs.math_engine.domain.model.common.exceptions.ConflictException;
+import com.cheobs.math_engine.domain.model.common.exceptions.NotFoundException;
 import com.cheobs.math_engine.domain.model.field.Field;
 import com.cheobs.math_engine.domain.model.field.FieldSource;
 import com.cheobs.math_engine.domain.model.layout.LayoutStatus;
@@ -68,7 +68,7 @@ public class SubmissionService implements SubmissionUseCase {
                 )
         ).toList();
 
-        submissionPort.save(submissionFields);
+        submissionPort.saveSubmissionFields(submissionFields);
         return savedSubmission;
     }
 

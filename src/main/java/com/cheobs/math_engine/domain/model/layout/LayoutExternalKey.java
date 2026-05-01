@@ -1,6 +1,6 @@
 package com.cheobs.math_engine.domain.model.layout;
 
-import com.cheobs.math_engine.domain.model.common.ValidationException;
+import com.cheobs.math_engine.domain.model.common.exceptions.ValidationException;
 
 public record LayoutExternalKey(String value) {
 
