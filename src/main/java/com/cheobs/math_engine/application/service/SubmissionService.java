@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.UUID;
 import java.util.stream.Collectors;
 
 @Service
@@ -114,5 +115,33 @@ public class SubmissionService implements SubmissionUseCase {
         }
 
         return duplicateFields;
+    }
+
+    @Override
+    public SubmissionDetails getSubmissionDetails(UUID id) {
+        var submission = submissionPort.getById(id)
+                .orElseThrow(() -> new NotFoundException("Submission not found with id: " + id, "not-found.submission"));
+
+        if (!SubmissionStatus.COMPLETED.equals(submission.getStatus())) {
+            throw new ConflictException("Submission is not completed yet: " + id, "conflict.submission.not-completed");
+        }
+
+        var fields = submissionPort.getProcessedFieldsBySubmission(id).stream()
+                .map(field -> new SubmissionDetailsField(
+                        field.getId(),
+                        field.getField().getExternalKey(),
+                        field.getField().getName(),
+                        field.getValue(),
+                        field.getField().getFieldType()
+                ))
+                .toList();
+
+        return new SubmissionDetails(
+                submission.getId(),
+                submission.getLayout().getId(),
+                submission.getLayout().getExternalKey(),
+                submission.getStatus(),
+                fields
+        );
     }
 }

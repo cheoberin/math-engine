@@ -17,6 +17,7 @@ import java.util.regex.Pattern;
 public class ExpressionEvaluatorAdapter implements ExpressionEvaluatorPort {
 
     private static final Pattern VARIABLE_PATTERN = Pattern.compile("\\[([A-Za-z0-9]+)]");
+    private static final Pattern ABSOLUTE_VALUE_PATTERN = Pattern.compile("\\|([^|]+)\\|");
     private static final Operator SAFE_DIVISION = new Operator("/", 2, true, Operator.PRECEDENCE_DIVISION) {
         @Override
         public double apply(double... args) {
@@ -26,13 +27,13 @@ public class ExpressionEvaluatorAdapter implements ExpressionEvaluatorPort {
 
     @Override
     public BigDecimal evaluate(String expression, Map<String, BigDecimal> variables) {
-
         if (expression == null || expression.isBlank()) {
             return BigDecimal.ZERO;
         }
 
         var aliasByVariable = new LinkedHashMap<String, String>();
-        String parsedExpression = toExp4jExpression(expression, aliasByVariable);
+        String normalizedExpression = toExp4jAbsoluteValueExpression(expression);
+        String parsedExpression = toExp4jExpression(normalizedExpression, aliasByVariable);
 
         var builder = new ExpressionBuilder(parsedExpression)
                 .operator(SAFE_DIVISION);
@@ -54,6 +55,17 @@ public class ExpressionEvaluatorAdapter implements ExpressionEvaluatorPort {
         }
 
         return BigDecimal.valueOf(result);
+    }
+
+    private String toExp4jAbsoluteValueExpression(String expression) {
+        String parsedExpression = expression;
+        Matcher matcher = ABSOLUTE_VALUE_PATTERN.matcher(parsedExpression);
+        while (matcher.find()) {
+            String replacement = "abs(" + matcher.group(1) + ")";
+            parsedExpression = matcher.replaceFirst(Matcher.quoteReplacement(replacement));
+            matcher = ABSOLUTE_VALUE_PATTERN.matcher(parsedExpression);
+        }
+        return parsedExpression;
     }
 
     private String toExp4jExpression(String expression, Map<String, String> aliasByVariable) {

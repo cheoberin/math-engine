@@ -13,6 +13,7 @@ import com.cheobs.math_engine.domain.port.output.SubmissionPort;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 @Service
@@ -75,6 +76,20 @@ public class SubmissionAdapter implements SubmissionPort {
                 .map(this::toDomain)
                 .toList();
 
+    }
+
+    @Override
+    public Optional<Submission> getById(UUID id) {
+        return submissionRepository.findByIdWithLayout(id)
+                .map(this::toDomain);
+    }
+
+    @Override
+    public List<ProcessedField> getProcessedFieldsBySubmission(UUID id) {
+        var entities = processedFieldRepository.findBySubmissionIdWithField(id);
+        return entities.stream()
+                .map(this::toDomain)
+                .toList();
     }
 
     @Override

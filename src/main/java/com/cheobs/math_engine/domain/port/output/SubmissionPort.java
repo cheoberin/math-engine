@@ -5,6 +5,7 @@ import com.cheobs.math_engine.domain.model.submission.Submission;
 import com.cheobs.math_engine.domain.model.submission.SubmissionField;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.UUID;
 
 public interface SubmissionPort {
@@ -14,6 +15,10 @@ public interface SubmissionPort {
     List<SubmissionField> saveSubmissionFields(List<SubmissionField> submissionFields);
 
     List<SubmissionField> getSubmissionFieldsBySubmission(UUID id);
+
+    Optional<Submission> getById(UUID id);
+
+    List<ProcessedField> getProcessedFieldsBySubmission(UUID id);
 
     List<ProcessedField> saveProcessedFields(List<ProcessedField> processedFields);
 

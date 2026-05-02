@@ -5,9 +5,9 @@ import com.cheobs.math_engine.domain.model.submission.Submission;
 import java.time.OffsetDateTime;
 import java.util.UUID;
 
-public record SubmissionResponse(UUID submissionId, OffsetDateTime receivedAt) {
+public record SubmissionResponseDto(UUID submissionId, OffsetDateTime receivedAt) {
 
-    public SubmissionResponse(Submission submission) {
+    public SubmissionResponseDto(Submission submission) {
         this(submission.getId(), submission.getReceivedAt());
     }
 

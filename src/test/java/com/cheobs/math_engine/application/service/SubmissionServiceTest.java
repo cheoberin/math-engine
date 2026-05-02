@@ -236,6 +236,44 @@ class SubmissionServiceTest {
         assertSame(savedSubmission, saved.getFirst().getSubmission());
     }
 
+    @Test
+    void shouldGetSubmissionDetailsWithProcessedFields() {
+        UUID submissionId = UUID.randomUUID();
+        UUID layoutId = UUID.randomUUID();
+        Layout layout = new Layout(layoutId, "LAY1", "Main Layout", LayoutStatus.ACTIVE);
+        Submission submission = new Submission(submissionId, layout, SubmissionStatus.COMPLETED, OffsetDateTime.now());
+
+        Field fieldA1 = anyInputField(layout, "A1");
+        ProcessedField processedField = new ProcessedField(submission, fieldA1, BigDecimal.valueOf(42));
+
+        when(submissionPort.getById(submissionId)).thenReturn(Optional.of(submission));
+        when(submissionPort.getProcessedFieldsBySubmission(submissionId)).thenReturn(List.of(processedField));
+
+        SubmissionDetails details = submissionService.getSubmissionDetails(submissionId);
+
+        assertEquals(submissionId, details.id());
+        assertEquals(layoutId, details.layoutId());
+        assertEquals("LAY1", details.layoutExternalKey());
+        assertEquals(SubmissionStatus.COMPLETED, details.status());
+        assertEquals(1, details.fields().size());
+        assertEquals("A1", details.fields().getFirst().fieldExternalKey());
+        assertEquals(BigDecimal.valueOf(42), details.fields().getFirst().value());
+    }
+
+    @Test
+    void shouldThrowNotFoundWhenSubmissionDoesNotExist() {
+        UUID submissionId = UUID.randomUUID();
+        when(submissionPort.getById(submissionId)).thenReturn(Optional.empty());
+
+        NotFoundException exception = assertThrows(
+                NotFoundException.class,
+                () -> submissionService.getSubmissionDetails(submissionId)
+        );
+
+        assertEquals("not-found.submission", exception.getIdentifier());
+        verify(submissionPort, never()).getProcessedFieldsBySubmission(any());
+    }
+
     private static Field anyInputField(Layout layout, String externalKey) {
         return new Field(UUID.randomUUID(), externalKey, "Field " + externalKey, layout, FieldSource.INPUT, null, FieldType.NUMBER, null);
     }

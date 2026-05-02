@@ -60,6 +60,15 @@ class ExpressionEvaluatorAdapterTest {
         assertDecimalEquals("10", result);
     }
 
+    @Test
+    void shouldSupportAbsoluteValuePipeSyntax() {
+        BigDecimal result = adapter.evaluate("0.3*([11]+|[11]|)/2", Map.of(
+                "11", BigDecimal.valueOf(-10)
+        ));
+
+        assertDecimalEquals("0", result);
+    }
+
     private void assertDecimalEquals(String expected, BigDecimal actual) {
         assertEquals(0, new BigDecimal(expected).compareTo(actual));
     }

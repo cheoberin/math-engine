@@ -12,6 +12,14 @@ import java.util.UUID;
 @Repository
 public interface SubmissionRepository extends JpaRepository<SubmissionEntity, UUID> {
 
+    @Query("""
+                SELECT s
+                FROM SubmissionEntity s
+                JOIN FETCH s.layout
+                WHERE s.id = :id
+            """)
+    java.util.Optional<SubmissionEntity> findByIdWithLayout(@Param("id") UUID id);
+
     @Query(value = """
                 SELECT *
                 FROM submission s
